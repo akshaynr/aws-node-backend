@@ -1,0 +1,10 @@
+{
+  "name": "product-service",
+  "version": "1.0.0",
+  "description": "Product Service",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
