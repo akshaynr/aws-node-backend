@@ -20,9 +20,13 @@ service: product-service
 # Check out our docs for more details
 frameworkVersion: '3'
 
+useDotenv: true
+
 provider:
   name: aws
   runtime: nodejs12.x
+  environment: 
+    TABLE_NAME: ${env:TABLE_NAME}
 
 # you can overwrite defaults here
   stage: dev
@@ -72,6 +76,13 @@ functions:
         - http:
             path: /products/{productId}
             method: get
+            cors: true
+  createProduct:
+    handler: createProduct.createProduct
+    events:
+        - http:
+            path: /products
+            method: post
             cors: true
 
 #    Define function environment variables here
