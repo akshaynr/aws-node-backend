@@ -1,28 +1,42 @@
 'use strict';
-
+const { query } = require('./utils/dynamo-query.js');
+const { INTERNAL_SERVER_ERROR, NOT_FOUND}  = require('./error.js');
+const { HEADERS } = require('./constants.js');
 
 exports.getProductById = async (event) => {
+  let response = {
+    headers: HEADERS
+  };
+
   try{
-    const { HEADERS } = await import('./constants.mjs');
-    const { PRODUCTS } =  await import('./products.mjs');
+    console.log('[Get Products List By ID] request, event:', event);
     const { productId } = event.pathParameters;
-    const productData = PRODUCTS.find((element) => element.id == productId);
-
+    const productData = await query(process.env.TABLE_NAME, productId);
     if(productNotAvailable(productData)){
-      throw new Error('Product Not Found', 400);
+      response = {
+        ...response,
+        statusCode: NOT_FOUND.statusCode,
+        body: JSON.stringify(NOT_FOUND)
+      }
+    } else{
+      response = {
+        ...response,
+        statusCode: 200,
+        body: JSON.stringify(productData)
+      }
     }
-
-    const response = {
-      statusCode: 200,
-      headers: HEADERS,
-      body: JSON.stringify(productData)
-    }
-  return response;
   } catch(error){
-    throw new Error(error.message, error.statusCode);
+    console.log('[Error Get Products List By ID]', error);
+    response = {
+      ...response,
+      statusCode: INTERNAL_SERVER_ERROR.statusCode,
+      body: JSON.stringify(INTERNAL_SERVER_ERROR)
+    }
+    
   }
+  return response;
 };
 
 const productNotAvailable = (product) => {
-  return !product;
+  return !product.length;
 } 
